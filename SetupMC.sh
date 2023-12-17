@@ -42,8 +42,6 @@ sudo apt-get upgrade -y
 echo "{$LOGDATE-$TIMESTAMP} Installed Updates" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sudo apt-get autoclean
 ######################################################################################################################################
-#!/bin/bash
-
 # Function to get the latest PaperMC version from API
 get_latest_papermc_version() {
     local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.versions[-1]')
@@ -58,11 +56,17 @@ download_papermc() {
     # Download the PaperMC version
     wget -O paper-$version.jar "$download_url"
     
-    echo "PaperMC version $version downloaded."
-    
-    # Create the start.sh file with the appropriate command
-    echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
-    chmod +x start.sh
+    # Check if the file was downloaded successfully
+    if [ $? -eq 0 ]; then
+        echo "PaperMC version $version downloaded successfully."
+        
+        # Create the start.sh file with the appropriate command
+        echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
+        chmod +x start.sh
+    else
+        echo "Failed to download PaperMC version $version."
+        exit 1
+    fi
 }
 
 # Get the latest PaperMC version
@@ -76,12 +80,11 @@ fi
 # Download the latest PaperMC version and create start.sh
 download_papermc "$latest_version"
 
-echo "{$LOGDATE-$TIMESTAMP} Start script created" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Generate the MC Server files
 sudo ./start.sh
-sudo chmod 777 -R ./*
-echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
+#sudo chmod 777 -R ./*
+#echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Agree to EULA terms
 sed -i 's/false/true/g' eula.txt
