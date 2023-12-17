@@ -45,7 +45,7 @@ sudo apt-get autoclean
 ######################################################################################################################################
 # Function to get the latest PaperMC version from API
 get_latest_papermc_version() {
-    local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.version.versions | sort | .[-1]')
+    local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.version.versions[-1]')
     echo "$latest_version"
 }
 
@@ -79,8 +79,6 @@ fi
 
 # Download the latest PaperMC version and create start.sh
 download_papermc "$latest_version"
-
-
 ######################################################################################################################################
 # Generate the MC Server files
 sudo ./start.sh
