@@ -12,7 +12,7 @@ DATE=$(date +"%y%m%d")
 TIME=$(date +"%H%M%S")
 LOGDATE=$(date +"%y/%m/%d")
 TIMESTAMP=$(date +"%H:%M:%S")
-LOGLOCATION=/home/clafr/Logs/
+LOGLOCATION=/home/clafr/Logs
 WORLDLOCATION=/home/$USER/$servername
 ######################################################################################################################################
 # Verify log directory, create log file
@@ -36,6 +36,7 @@ echo "{$LOGDATE-$TIMESTAMP} Installed OpenJDK 17" >>  "${LOGLOCATION}/setupmc_${
 sudo apt install screen -y
 echo "{$LOGDATE-$TIMESTAMP} Installed screen" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sudo apt install cifs-utils -y
+sudo apt-get install jq -
 sudo apt-get update -y
 sudo apt-get upgrade -y
 echo "{$LOGDATE-$TIMESTAMP} Installed Updates" >>  "${LOGLOCATION}/setupmc_${DATE}"
@@ -46,7 +47,6 @@ get_latest_papermc_version() {
     local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.versions[-1]')
     echo "$latest_version"
 }
-echo "{$LOGDATE-$TIMESTAMP} Verifying lastest papermc version" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Function to download the latest PaperMC version
 download_papermc() {
@@ -58,7 +58,17 @@ download_papermc() {
     
     echo "PaperMC version $version downloaded."
 }
-echo "{$LOGDATE-$TIMESTAMP} Papermc version $version downloaded" >>  "${LOGLOCATION}/setupmc_${DATE}"
+######################################################################################################################################
+# Get the latest PaperMC version
+latest_version=$(get_latest_papermc_version)
+
+if [ -z "$latest_version" ]; then
+    echo "Failed to fetch the latest PaperMC version. Check your internet connection or the PaperMC API."
+    exit 1
+fi
+######################################################################################################################################
+# Download the latest PaperMC version
+download_papermc "$latest_version"
 ######################################################################################################################################
 # Create the start.sh file and output the new version in the command
 touch "start.sh"
