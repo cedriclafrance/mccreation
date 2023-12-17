@@ -62,11 +62,13 @@ echo "{$LOGDATE-$TIMESTAMP} Papermc version $version downloaded" >>  "${LOGLOCAT
 ######################################################################################################################################
 # Create the start.sh file and output the new version in the command
 touch "start.sh"
+sudo chmod 777 -R ./*
 echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
 echo "{$LOGDATE-$TIMESTAMP} Start script created" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Generate the MC Server files
 ./start.sh
+sudo chmod 777 -R ./*
 echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Agree to EULA terms
@@ -74,6 +76,7 @@ sed -i 's/false/true/g' eula.txt
 echo "{$LOGDATE-$TIMESTAMP} EULA accepted" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Modify the server properties
+sudo chmod 777 -R ./*
 sed -i "s/^motd=.*/port=\u00A76\u00A7l$servername Vanilla Server \n\u00A7b\u00A7o$version/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Banner changed" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sed -i 's/^simulation-distance=.*/simulation-distance=8/' server.properties
