@@ -42,12 +42,14 @@ sudo apt-get upgrade -y
 echo "{$LOGDATE-$TIMESTAMP} Installed Updates" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sudo apt-get autoclean
 ######################################################################################################################################
+#!/bin/bash
+
 # Function to get the latest PaperMC version from API
 get_latest_papermc_version() {
     local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.versions[-1]')
     echo "$latest_version"
 }
-######################################################################################################################################
+
 # Function to download the latest PaperMC version
 download_papermc() {
     local version=$1
@@ -57,8 +59,12 @@ download_papermc() {
     wget -O paper-$version.jar "$download_url"
     
     echo "PaperMC version $version downloaded."
+    
+    # Create the start.sh file with the appropriate command
+    echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
+    chmod +x start.sh
 }
-######################################################################################################################################
+
 # Get the latest PaperMC version
 latest_version=$(get_latest_papermc_version)
 
@@ -66,18 +72,14 @@ if [ -z "$latest_version" ]; then
     echo "Failed to fetch the latest PaperMC version. Check your internet connection or the PaperMC API."
     exit 1
 fi
-######################################################################################################################################
-# Download the latest PaperMC version
+
+# Download the latest PaperMC version and create start.sh
 download_papermc "$latest_version"
-######################################################################################################################################
-# Create the start.sh file and output the new version in the command
-touch "start.sh"
-sudo chmod 777 -R ./*
-echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
+
 echo "{$LOGDATE-$TIMESTAMP} Start script created" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Generate the MC Server files
-./start.sh
+sudo ./start.sh
 sudo chmod 777 -R ./*
 echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
@@ -90,64 +92,64 @@ sudo chmod 777 -R ./*
 sed -i "s/^motd=.*/port=\u00A76\u00A7l$servername Vanilla Server \n\u00A7b\u00A7o$version/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Banner changed" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sed -i 's/^simulation-distance=.*/simulation-distance=8/' server.properties
-sed -i 's/^view-distance=.*/view-distance=10/' $servername\server.properties
+sed -i 's/^view-distance=.*/view-distance=10/' server.properties
 echo "{$LOGDATE-$TIMESTAMP} Viewing distance set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i "s/^level-name=.*/level-name==$servername/" $servername\server.properties
+sed -i "s/^level-name=.*/level-name==$servername/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Servername set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^max-players=.*/max-players=10/' $servername\server.properties
+sed -i 's/^max-players=.*/max-players=10/' server.properties
 echo "{$LOGDATE-$TIMESTAMP} Max player set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^spawn-protection=.*/spawn-protection=0/' $servername\server.properties
+sed -i 's/^spawn-protection=.*/spawn-protection=0/' server.properties
 echo "{$LOGDATE-$TIMESTAMP} Spawn protection off" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^max-tick-time=.*/max-tick-time=-1/' $servername\server.properties
+sed -i 's/^max-tick-time=.*/max-tick-time=-1/' server.properties
 echo "{$LOGDATE-$TIMESTAMP} Spawn protection off" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^difficulty=.*/difficulty=hard/' $servername\server.properties
+sed -i 's/^difficulty=.*/difficulty=hard/' server.properties
 echo "{$LOGDATE-$TIMESTAMP} Difficulty set to hard" >>  "${LOGLOCATION}/setupmc_${DATE}"
 
 echo "What port would you like to use?"
 read port
-sed -i "s/^server-port=.*/server-port=$port/" $servername\server.properties
-sed -i "s/^query.port=.*/query.port=$port/" $servername\server.properties
-sed -i "s/^rcon.port=.*/rcon.port=$port/" $servername\server.properties
+sed -i "s/^server-port=.*/server-port=$port/" server.properties
+sed -i "s/^query.port=.*/query.port=$port/" server.properties
+sed -i "s/^rcon.port=.*/rcon.port=$port/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Network port set to $port" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What gamemode would you like (survival, creative, hardcore)?"
 read gamemode
-sed -i "s/^gamemode=.*/gamemode=$gamemode/" $servername\server.properties
+sed -i "s/^gamemode=.*/gamemode=$gamemode/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Gamemode set to $port" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What see would you like to use (leave empty if random)?"
 read seed
-sed -i "s/^level-seed=.*/level-seed=$seed/" $servername\server.properties
+sed -i "s/^level-seed=.*/level-seed=$seed/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Using seed $seed" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What type of world would you want (default, flat, largebiomes, amplified, buffet)?"
 read worldtype
-sed -i "s/^level-type=.*/level-type=$worldtype/" $servername\server.properties
+sed -i "s/^level-type=.*/level-type=$worldtype/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Using level-type $worldtype" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Create, Enable, Start mcserver.service
 sudo touch /etc/systemd/system/mcserver.service
 sudo nano /etc/systemd/system/mcserver.service
 cd /etc/systemd/system/
-echo '[Unit]' > mcserver.service
-echo 'Description=Minecraft Server Startup' >> mcserver.service
-echo '# After=network.target' >> mcserver.service
-echo '# After=systemd-user-sessions.service' >> mcserver.service
-echo '# After=network-online.target' >> mcserver.service
-echo '' >> mcserver.service
-echo '[Service]' >> mcserver.service
-echo 'RemainAfterExit=yes' >> mcserver.service
-echo "WorkingDirectory=$WORLDLOCATION" >> mcserver.service
-echo "User=$USER" >> mcserver.service
-echo '# Start Screen, Java, and Minecraft' >> mcserver.service
-echo 'ExecStart=screen -s mc -d -m ./start.sh' >> mcserver.service
-echo '# Tell Minecraft to gracefully stop.' >> mcserver.service
-echo '# Ending Minecraft will terminate Java' >> mcserver.service
-echo '# systemd will kill Screen after the 10-second delay. No explicit kill for Screen needed' >> mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "say SERVER SHUTTING DOWN. Saving map..."\015'' >> mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "save-all"\015'' >> mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "stop"\015'' >> mcserver.service
-echo 'ExecStop=sleep 10' >> mcserver.service
-echo '' >> mcserver.service
-echo '[Install]' >> mcserver.service
-echo 'WantedBy=multi-user.target' >> mcserver.service
+echo '[Unit]' > /etc/systemd/system/mcserver.service
+echo 'Description=Minecraft Server Startup' >> /etc/systemd/system/mcserver.service
+echo '# After=network.target' >> /etc/systemd/system/mcserver.service
+echo '# After=systemd-user-sessions.service' >> /etc/systemd/system/mcserver.service
+echo '# After=network-online.target' >> /etc/systemd/system/mcserver.service
+echo '' >> /etc/systemd/system/mcserver.service
+echo '[Service]' >> /etc/systemd/system/mcserver.service
+echo 'RemainAfterExit=yes' >> /etc/systemd/system/mcserver.service
+echo "WorkingDirectory=$WORLDLOCATION" >> /etc/systemd/system/mcserver.service
+echo "User=$USER" >> /etc/systemd/system/mcserver.service
+echo '# Start Screen, Java, and Minecraft' >> /etc/systemd/system/mcserver.service
+echo 'ExecStart=screen -s mc -d -m ./start.sh' >> /etc/systemd/system/mcserver.service
+echo '# Tell Minecraft to gracefully stop.' >> /etc/systemd/system/mcserver.service
+echo '# Ending Minecraft will terminate Java' >> /etc/systemd/system/mcserver.service
+echo '# systemd will kill Screen after the 10-second delay. No explicit kill for Screen needed' >> /etc/systemd/system/mcserver.service
+echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "say SERVER SHUTTING DOWN. Saving map..."\015'' >> /etc/systemd/system/mcserver.service
+echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "save-all"\015'' >> /etc/systemd/system/mcserver.service
+echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "stop"\015'' >> /etc/systemd/system/mcserver.service
+echo 'ExecStop=sleep 10' >> /etc/systemd/system/mcserver.service
+echo '' >> /etc/systemd/system/mcserver.service
+echo '[Install]' >> /etc/systemd/system/mcserver.service
+echo 'WantedBy=multi-user.target' >> /etc/systemd/system/mcserver.service
 echo "{$LOGDATE-$TIMESTAMP} Created mcserver.service" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sudo systemctl enable mcserver
 echo "{$LOGDATE-$TIMESTAMP} mcserver.service enabled" >>  "${LOGLOCATION}/setupmc_${DATE}"
