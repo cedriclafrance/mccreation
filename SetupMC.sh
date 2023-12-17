@@ -4,6 +4,7 @@
 echo "What would you like to name your server??"
 read servername
 mkdir $servername
+chmod 777 $servername
 cd $servername
 ######################################################################################################################################
 # Variables
