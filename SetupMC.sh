@@ -90,36 +90,36 @@ sudo chmod 777 -R ./*
 sed -i "s/^motd=.*/port=\u00A76\u00A7l$servername Vanilla Server \n\u00A7b\u00A7o$version/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Banner changed" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sed -i 's/^simulation-distance=.*/simulation-distance=8/' server.properties
-sed -i 's/^view-distance=.*/view-distance=10/' server.properties
+sed -i 's/^view-distance=.*/view-distance=10/' $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Viewing distance set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i "s/^level-name=.*/level-name==$servername/" server.properties
+sed -i "s/^level-name=.*/level-name==$servername/" $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Servername set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^max-players=.*/max-players=10/' server.properties
+sed -i 's/^max-players=.*/max-players=10/' $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Max player set" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^spawn-protection=.*/spawn-protection=0/' server.properties
+sed -i 's/^spawn-protection=.*/spawn-protection=0/' $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Spawn protection off" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^max-tick-time=.*/max-tick-time=-1/' server.properties
+sed -i 's/^max-tick-time=.*/max-tick-time=-1/' $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Spawn protection off" >>  "${LOGLOCATION}/setupmc_${DATE}"
-sed -i 's/^difficulty=.*/difficulty=hard/' server.properties
+sed -i 's/^difficulty=.*/difficulty=hard/' $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Difficulty set to hard" >>  "${LOGLOCATION}/setupmc_${DATE}"
 
 echo "What port would you like to use?"
 read port
-sed -i "s/^server-port=.*/server-port=$port/" server.properties
-sed -i "s/^query.port=.*/query.port=$port/" server.properties
-sed -i "s/^rcon.port=.*/rcon.port=$port/" server.properties
+sed -i "s/^server-port=.*/server-port=$port/" $servername\server.properties
+sed -i "s/^query.port=.*/query.port=$port/" $servername\server.properties
+sed -i "s/^rcon.port=.*/rcon.port=$port/" $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Network port set to $port" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What gamemode would you like (survival, creative, hardcore)?"
 read gamemode
-sed -i "s/^gamemode=.*/gamemode=$gamemode/" server.properties
+sed -i "s/^gamemode=.*/gamemode=$gamemode/" $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Gamemode set to $port" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What see would you like to use (leave empty if random)?"
 read seed
-sed -i "s/^level-seed=.*/level-seed=$seed/" server.properties
+sed -i "s/^level-seed=.*/level-seed=$seed/" $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Using seed $seed" >>  "${LOGLOCATION}/setupmc_${DATE}"
 echo "What type of world would you want (default, flat, largebiomes, amplified, buffet)?"
 read worldtype
-sed -i "s/^level-type=.*/level-type=$worldtype/" server.properties
+sed -i "s/^level-type=.*/level-type=$worldtype/" $servername\server.properties
 echo "{$LOGDATE-$TIMESTAMP} Using level-type $worldtype" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Create, Enable, Start mcserver.service
