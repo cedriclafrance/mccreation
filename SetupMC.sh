@@ -1,10 +1,9 @@
 #!/bin/bash
 ######################################################################################################################################
 # Create the required directories
-echo "What would you like to name your server??"
+echo "What would you like to name your server?"
 read servername
 mkdir $servername
-chmod 777 $servername
 cd $servername
 ######################################################################################################################################
 # Variables
@@ -17,8 +16,8 @@ LOGLOCATION=/home/clafr/Logs
 WORLDLOCATION=/home/$USER/$servername
 ######################################################################################################################################
 # Verify log directory, create log file
-if [ ! -d "$log_directory" ]; then
-    mkdir -p "$log_directory"
+if [ ! -d "$LOGLOCATION" ]; then
+    mkdir -p "$LOGLOCATION"
 fi
 touch "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
@@ -44,46 +43,24 @@ echo "{$LOGDATE-$TIMESTAMP} Installed Updates" >>  "${LOGLOCATION}/setupmc_${DAT
 sudo apt-get autoclean
 ######################################################################################################################################
 # Function to get the latest PaperMC version from API
-get_latest_papermc_version() {
-    local latest_version=$(curl -s "https://papermc.io/api/v2/projects/paper" | jq -r '.version.versions[-1]')
-    echo "$latest_version"
-}
-
-# Function to download the latest PaperMC version
-download_papermc() {
-    local version=$1
-    local download_url="https://papermc.io/api/v2/projects/paper/versions/$version/builds/latest/downloads/paper-$version.jar"
-    
-    # Download the PaperMC version
-    wget -O "paper-$version.jar" "$download_url"
-    
-    if [ $? -eq 0 ]; then
-        echo "PaperMC version $version downloaded successfully."
-        
-        # Create the start.sh file with the appropriate command
-        echo "java -Xms6144M -Xmx6144M -jar paper-$version.jar nogui" > start.sh
-        chmod +x start.sh
-    else
-        echo "Failed to download PaperMC version $version."
-        exit 1
-    fi
-}
-
-# Get the latest PaperMC version
-latest_version=$(get_latest_papermc_version)
-
-if [ -z "$latest_version" ]; then
-    echo "Failed to fetch the latest PaperMC version. Check your internet connection or the PaperMC API."
-    exit 1
-fi
-
-# Download the latest PaperMC version and create start.sh
-download_papermc "$latest_version"
+echo "What version would you like to use?"
+read MCVERSION
+curl -s "https://api.papermc.io/v2/projects/paper/versions/$MCVERSION/" >/dev/null 2>&1
+BUILDVERSION=$(curl -s "https://api.papermc.io/v2/projects/paper/versions/$MCVERSION/" | grep -oE ',[0-9]+' | rev | cut -d',' -f1 | rev | tail -n 1)
+echo "https://api.papermc.io/v2/projects/paper/versions/$MCVERSION/builds/$BUILDVERSION/downloads/paper-$MCVERSION-$BUILDVERSION.jar"
+wget "https://api.papermc.io/v2/projects/paper/versions/$MCVERSION/builds/$BUILDVERSION/downloads/paper-$MCVERSION-$BUILDVERSION.jar"
+sudo chmod +rwx "paper-$MCVERSION-$BUILDVERSION.jar"
+echo "{$LOGDATE-$TIMESTAMP} Downloaded paper-$MCVERSION-$BUILDVERSION.jar" >>  "${LOGLOCATION}/setupmc_${DATE}"
+######################################################################################################################################
+# Create the start file
+echo "java -Xms6144M -Xmx6144M -jar paper-$MCVERSION-$BUILDVERSION.jar nogui" > start.sh
+sudo chmod +x ./start.sh
+echo "{$LOGDATE-$TIMESTAMP} Created start.sh" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Generate the MC Server files
 sudo ./start.sh
-#sudo chmod 777 -R ./*
-#echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
+sudo chmod 777 -R ./*
+echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Agree to EULA terms
 sed -i 's/false/true/g' eula.txt
@@ -161,7 +138,7 @@ sudo systemctl status mcserver
 ######################################################################################################################################
 # Confirm
 if systemctl is-active --quiet mcserver.service && systemctl is-enabled --quiet mcserver.service; then
-    echo "Server is running"
+    echo "Server is running version $MCVERSION with build#$BUILDVERSION"
     echo "Script Completed Successfully. Please open $port for IP address $(hostname -I | awk '{print $1}')"
 else
     echo "Server is not running, please check the logs under $LOGLOCATION"
