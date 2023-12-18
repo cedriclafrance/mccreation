@@ -107,7 +107,8 @@ echo "{$LOGDATE-$TIMESTAMP} Using level-type $worldtype" >>  "${LOGLOCATION}/set
 ######################################################################################################################################
 # Create, Enable, Start mcserver.service
 sudo touch /etc/systemd/system/mcserver.service
-sudo nano /etc/systemd/system/mcserver.service
+sudo chmod 777 mcserver.service
+#sudo nano /etc/systemd/system/mcserver.service
 cd /etc/systemd/system/
 echo '[Unit]' > /etc/systemd/system/mcserver.service
 echo 'Description=Minecraft Server Startup' >> /etc/systemd/system/mcserver.service
