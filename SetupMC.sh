@@ -96,7 +96,7 @@ echo "What gamemode would you like (survival, creative, hardcore)?"
 read gamemode
 sed -i "s/^gamemode=.*/gamemode=$gamemode/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Gamemode set to $port" >>  "${LOGLOCATION}/setupmc_${DATE}"
-echo "What see would you like to use (leave empty if random)?"
+echo "What seed would you like to use (leave empty if random)?"
 read seed
 sed -i "s/^level-seed=.*/level-seed=$seed/" server.properties
 echo "{$LOGDATE-$TIMESTAMP} Using seed $seed" >>  "${LOGLOCATION}/setupmc_${DATE}"
