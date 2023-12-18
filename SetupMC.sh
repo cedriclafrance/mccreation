@@ -4,6 +4,7 @@
 echo "What would you like to name your server?"
 read servername
 mkdir $servername
+sudo chmod 777 -R $servername
 cd $servername
 ######################################################################################################################################
 # Variables
@@ -63,6 +64,7 @@ sudo chmod 777 -R ./*
 echo "{$LOGDATE-$TIMESTAMP} Generating server files" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
 # Agree to EULA terms
+sudo chmod +rwx ./eula.txt
 sed -i 's/false/true/g' eula.txt
 echo "{$LOGDATE-$TIMESTAMP} EULA accepted" >>  "${LOGLOCATION}/setupmc_${DATE}"
 ######################################################################################################################################
