@@ -110,28 +110,28 @@ sudo touch /etc/systemd/system/mcserver.service
 sudo chmod 777 mcserver.service
 #sudo nano /etc/systemd/system/mcserver.service
 cd /etc/systemd/system/
-echo '[Unit]' > /etc/systemd/system/mcserver.service
-echo 'Description=Minecraft Server Startup' >> /etc/systemd/system/mcserver.service
-echo '# After=network.target' >> /etc/systemd/system/mcserver.service
-echo '# After=systemd-user-sessions.service' >> /etc/systemd/system/mcserver.service
-echo '# After=network-online.target' >> /etc/systemd/system/mcserver.service
-echo '' >> /etc/systemd/system/mcserver.service
-echo '[Service]' >> /etc/systemd/system/mcserver.service
-echo 'RemainAfterExit=yes' >> /etc/systemd/system/mcserver.service
-echo "WorkingDirectory=$WORLDLOCATION" >> /etc/systemd/system/mcserver.service
-echo "User=$USER" >> /etc/systemd/system/mcserver.service
-echo '# Start Screen, Java, and Minecraft' >> /etc/systemd/system/mcserver.service
-echo 'ExecStart=screen -s mc -d -m ./start.sh' >> /etc/systemd/system/mcserver.service
-echo '# Tell Minecraft to gracefully stop.' >> /etc/systemd/system/mcserver.service
-echo '# Ending Minecraft will terminate Java' >> /etc/systemd/system/mcserver.service
-echo '# systemd will kill Screen after the 10-second delay. No explicit kill for Screen needed' >> /etc/systemd/system/mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "say SERVER SHUTTING DOWN. Saving map..."\015'' >> /etc/systemd/system/mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "save-all"\015'' >> /etc/systemd/system/mcserver.service
-echo 'ExecStop=screen -p 0 -S mc -X eval 'stuff "stop"\015'' >> /etc/systemd/system/mcserver.service
-echo 'ExecStop=sleep 10' >> /etc/systemd/system/mcserver.service
-echo '' >> /etc/systemd/system/mcserver.service
-echo '[Install]' >> /etc/systemd/system/mcserver.service
-echo 'WantedBy=multi-user.target' >> /etc/systemd/system/mcserver.service
+sudo bash -c 'echo "[Unit]" > /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "Description=Minecraft Server Startup" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# After=network.target" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# After=systemd-user-sessions.service" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# After=network-online.target" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "[Service]" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "RemainAfterExit=yes" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "WorkingDirectory=$WORLDLOCATION" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "User=$USER" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# Start Screen, Java, and Minecraft" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "ExecStart=screen -s mc -d -m ./start.sh" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# Tell Minecraft to gracefully stop." >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# Ending Minecraft will terminate Java" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "# systemd will kill Screen after the 10-second delay. No explicit kill for Screen needed" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "ExecStop=screen -p 0 -S mc -X eval 'stuff "say SERVER SHUTTING DOWN. Saving map..."\015'" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "ExecStop=screen -p 0 -S mc -X eval 'stuff "save-all"\015'" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "ExecStop=screen -p 0 -S mc -X eval 'stuff "stop"\015'" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "ExecStop=sleep 10" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "[Install]" >> /etc/systemd/system/mcserver.service'
+sudo bash -c 'echo "WantedBy=multi-user.target" >> /etc/systemd/system/mcserver.service'
 echo "{$LOGDATE-$TIMESTAMP} Created mcserver.service" >>  "${LOGLOCATION}/setupmc_${DATE}"
 sudo systemctl enable mcserver
 echo "{$LOGDATE-$TIMESTAMP} mcserver.service enabled" >>  "${LOGLOCATION}/setupmc_${DATE}"
